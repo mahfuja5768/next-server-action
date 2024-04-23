@@ -1,4 +1,5 @@
-import addUser from "@/actions/user";
+import { addUser } from "@/actions/user";
+
 
 export default function NewUserForm() {
   return (

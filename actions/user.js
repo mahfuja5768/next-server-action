@@ -2,8 +2,9 @@
 
 import connectMongo from "@/dbConnect/connectMongo";
 import User from "@/models/User";
+import { revalidatePath } from "next/cache";
 
-const addUser = async (formData) => {
+export const addUser = async (formData) => {
   const name = formData.get("name");
   const email = formData.get("email");
 
@@ -12,11 +13,23 @@ const addUser = async (formData) => {
     email,
   };
 
-  await connectMongo(); // Establish MongoDB connection
+  try {
+    await connectMongo();
+    await new User(userData).save();
 
-  // Create a new user instance and save it to the database
-  const newUser = new User(userData);
-  await newUser.save();
+    //revalidate users
+    revalidatePath("/");
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-export default addUser;
+export const getUsers = async () => {
+  try {
+    await connectMongo();
+    const users = await User.find();
+    return users;
+  } catch (error) {
+    console.log(error);
+  }
+};
